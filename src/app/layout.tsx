@@ -1,7 +1,9 @@
 import "~/styles/globals.css";
 
 import { type Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Lexend_Deca } from "next/font/google";
+import { cn } from "~/lib/utils";
+import { QueryProvider } from "~/components/QueryProvider";
 
 export const metadata: Metadata = {
   title: "Morsel",
@@ -9,17 +11,19 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const geist = Geist({
+const font = Lexend_Deca({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
+  variable: "--font-sans",
 });
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable}`}>
-      <body>{children}</body>
-    </html>
+    <QueryProvider>
+      <html lang="en" className={cn(font.variable)}>
+        <body className="dark">{children}</body>
+      </html>
+    </QueryProvider>
   );
 }

@@ -1,5 +1,4 @@
-import Link from "next/link";
-
-export default function HomePage() {
-  return <main>Wassup Beijing</main>;
+import NavBar from "~/features/navigation/navbar/components/navbar";
+export default function Homepage() {
+  return <NavBar />;
 }
