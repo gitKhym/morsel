@@ -4,7 +4,8 @@ import { Button } from "~/components/ui/button";
 import FavouriteRecipeButton from "~/features/recipe/components/FavouriteRecipeButton";
 import AddRecipeToCollectionButton from "~/features/recipes/components/recipe_card/AddRecipeToCollectionButton";
 import { minutesToDuration } from "~/lib/utils";
-import type { Collection, Recipe } from "~/types/recipe";
+import type { Collection } from "~/types/recipe/collection";
+import type { Recipe } from "~/types/recipe/recipe";
 
 export default function RecipeSummaryHeader({
   recipe,

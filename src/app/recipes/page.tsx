@@ -2,9 +2,10 @@
 import { useQuery } from "@tanstack/react-query";
 import RecipeList from "~/features/recipes/components/RecipeList";
 import RecipeListSkeleton from "~/features/recipes/components/RecipeList_Skeleton";
-import type { Collection, Recipe } from "~/types/recipe";
+import type { Collection } from "~/types/recipe/collection";
+import type { Recipe } from "~/types/recipe/recipe";
 
-export default function RecipesPage() {
+export default function Page() {
   const {
     isLoading,
     error,

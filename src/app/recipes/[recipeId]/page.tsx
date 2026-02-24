@@ -8,7 +8,7 @@ import RecipeSummaryHeader from "~/features/recipe/components/RecipeSummaryHeade
 import type { Collection } from "~/types/recipe/collection";
 import type { Recipe } from "~/types/recipe/recipe";
 
-export default function RecipePage() {
+export default function Page() {
   const params = useParams();
   const recipeId = params.recipeId as string;
 
@@ -47,7 +47,6 @@ export default function RecipePage() {
   if (!recipeId || !recipe) {
     return <div>Invalid recipe</div>;
   }
-  console.log(recipe.procedureGroups);
 
   return (
     <div className="bg-accent/40 rounded-sm p-4 md:mx-0 xl:mx-52">

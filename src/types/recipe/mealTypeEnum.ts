@@ -9,4 +9,4 @@ export const mealTypeEnum = pgEnum("meal_type", [
   "dessert",
 ]);
 
-export const MealType = z.enum(mealTypeEnum.enumValues);
+export const MEAL_TYPES = mealTypeEnum.enumValues;

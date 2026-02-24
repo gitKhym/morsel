@@ -7,4 +7,6 @@ export const mealDifficultyEnum = pgEnum("difficulty", [
   "hard",
 ]);
 
+export const MEAL_DIFFICULTY = mealDifficultyEnum.enumValues;
+
 export const MealDifficulty = z.enum(mealDifficultyEnum.enumValues);
