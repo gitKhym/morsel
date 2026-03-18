@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Plus } from "lucide-react";
+import { Check, Loader2, LoaderIcon, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Combobox,
@@ -13,7 +13,7 @@ import {
   ComboboxTrigger,
 } from "~/components/ui/combobox";
 import { useMutation } from "@tanstack/react-query";
-import type { Recipe } from "~/types/recipe/recipe";
+import type { PGRecipe } from "~/types/recipe/recipe";
 import type { Collection } from "~/types/recipe/collection";
 import { toast } from "sonner";
 
@@ -21,7 +21,7 @@ export default function AddRecipeToCollectionButton({
   recipe,
   collections,
 }: {
-  recipe: Recipe;
+  recipe: PGRecipe;
   collections: Collection[];
 }) {
   const [localCollectionIds, setLocalCollectionIds] = useState<number[]>(
@@ -93,7 +93,6 @@ export default function AddRecipeToCollectionButton({
         collectionName: collection.name,
       });
     } else {
-      toast.loading("loading");
       // Add tick immediately
       setLocalCollectionIds((ids) => [...ids, collection.id]);
       void addToCollectionMutation.mutate({
@@ -116,7 +115,12 @@ export default function AddRecipeToCollectionButton({
                 removeFromCollectionMutation.isPending
               }
             >
-              <Plus className="mr-2 h-4 w-4" />
+              {addToCollectionMutation.isPending ||
+              removeFromCollectionMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
               Add to Collection
             </Button>
           }

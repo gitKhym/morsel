@@ -6,7 +6,7 @@ import IngredientList from "~/features/recipe/components/ingredient_list/Ingredi
 import ProcedureArea from "~/features/recipe/components/procedure_list/ProcedureArea";
 import RecipeSummaryHeader from "~/features/recipe/components/RecipeSummaryHeader";
 import type { Collection } from "~/types/recipe/collection";
-import type { Recipe } from "~/types/recipe/recipe";
+import type { pgRecipe, Recipe } from "~/types/recipe/recipe";
 
 export default function Page() {
   const params = useParams();
@@ -47,6 +47,8 @@ export default function Page() {
   if (!recipeId || !recipe) {
     return <div>Invalid recipe</div>;
   }
+
+  console.log(recipe);
 
   return (
     <div className="bg-accent/40 rounded-sm p-4 md:mx-0 xl:mx-52">

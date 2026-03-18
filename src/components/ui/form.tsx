@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Textarea } from "~/components/ui/textarea";
+import TimeInput from "~/components/ui/time-input";
 
 type InputProps = React.ComponentProps<typeof Input>;
 
@@ -140,6 +141,16 @@ export const FormInput: FormControlFunc<{
 
 export const FormTextarea: FormControlFunc = (props) => {
   return <FormBase {...props}>{(field) => <Textarea {...field} />}</FormBase>;
+};
+
+export const FormTimeInput: FormControlFunc = (props) => {
+  return (
+    <FormBase {...props}>
+      {({ onChange, value, ...field }) => (
+        <TimeInput {...field} value={value} onChange={onChange} />
+      )}
+    </FormBase>
+  );
 };
 
 export const FormSelect: FormControlFunc<{ children: ReactNode }> = ({

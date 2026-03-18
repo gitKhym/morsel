@@ -1,12 +1,6 @@
-import { pgEnum } from "drizzle-orm/pg-core";
 import z from "zod";
+import { difficultyEnum } from "~/server/db/schema";
 
-export const mealDifficultyEnum = pgEnum("difficulty", [
-  "easy",
-  "medium",
-  "hard",
-]);
+export const MEAL_DIFFICULTY = difficultyEnum.enumValues;
 
-export const MEAL_DIFFICULTY = mealDifficultyEnum.enumValues;
-
-export const MealDifficulty = z.enum(mealDifficultyEnum.enumValues);
+export const MealDifficulty = z.enum(difficultyEnum.enumValues);

@@ -68,9 +68,7 @@ export default function TimeInput({
   }
 
   return (
-    <div
-      className={`flex items-center justify-center space-x-1 rounded-md ${className}`}
-    >
+    <div className={`flex items-center space-x-1 rounded-md ${className}`}>
       {/* Minutes */}
       <div className="flex flex-col items-center">
         <Button

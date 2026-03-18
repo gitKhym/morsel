@@ -1,12 +1,12 @@
-import type { procedureSteps } from "~/server/db/schema";
 import z from "zod";
+import type { procedures } from "~/server/db/schema";
 import { ingredientSchema } from "~/types/recipe/ingredient";
 import { NoteType } from "~/types/recipe/step_modules/noteTypeEnum";
 
-export type ProcedureStep = typeof procedureSteps.$inferSelect;
+export type Procedure = typeof procedures.$inferSelect;
 
 export const procedureSchema = z.object({
-  content: z
+  instruction: z
     .string()
     .min(1, "Step cannot be empty.")
     .max(255, "Step too long."),
@@ -24,16 +24,18 @@ export const procedureSchema = z.object({
       }),
     })
     .optional(),
-  notes: z.array(
-    z
-      .object({
+  notes: z
+    .array(
+      z.object({
         type: NoteType,
         content: z
           .string()
-          .min(1, "Note cannot be empty.")
-          .max(255, "Note is too long."),
-      })
-      .optional(),
-  ),
+          .max(255, "Note is too long.")
+          .refine((val) => val.trim().length > 0, {
+            message: "Note cannot be empty.",
+          }),
+      }),
+    )
+    .optional(),
   ingredients: z.array(ingredientSchema),
 });

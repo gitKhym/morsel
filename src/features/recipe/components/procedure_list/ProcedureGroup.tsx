@@ -1,17 +1,17 @@
-import StepList from "~/features/recipe/components/procedure_list/StepList";
-import type { ProcedureGroup as ProcedureGroupType } from "~/types/recipe";
+import InstructionList from "~/features/recipe/components/procedure_list/InstructionList";
+import type { Recipe } from "~/types/recipe/recipe";
 
 export default function ProcedureGroup({
   procedureGroups,
 }: {
-  procedureGroups: ProcedureGroupType[];
+  procedureGroups: Recipe["procedureGroups"];
 }) {
   return (
     <>
       {procedureGroups.map((group) => (
         <div key={group.id}>
           <h2 className="mb-2">{group.name}</h2>
-          <StepList steps={group.steps} />
+          <InstructionList instructions={group.instructions} />
         </div>
       ))}
     </>

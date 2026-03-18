@@ -1,13 +1,13 @@
 import { Badge } from "~/components/ui/badge";
 import Ingredient from "~/features/recipe/components/ingredient_list/Ingredient";
-import { type IngredientGroup } from "~/features/recipe/components/ingredient_list/types";
 
 import { Separator } from "~/components/ui/separator";
 import IngredientListDropdown from "~/features/recipe/components/ingredient_list/IngredientListDropdown";
+import type { Recipe } from "~/types/recipe/recipe";
 export default function IngredientList({
   ingredientGroups,
 }: {
-  ingredientGroups: IngredientGroup[];
+  ingredientGroups: Recipe["ingredientGroups"];
 }) {
   return (
     <div className="bg-accent/50 mt-4 flex flex-col gap-2 overflow-hidden rounded-sm p-4">

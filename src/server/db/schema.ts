@@ -12,10 +12,28 @@ export const mealTypeEnum = pgEnum("meal_type", [
 ]);
 
 export const difficultyEnum = pgEnum("difficulty", ["Easy", "Medium", "Hard"]);
-export const stepNoteTypeEnum = pgEnum("step_note_type", [
+export const instructionNoteTypeEnum = pgEnum("instruction_note_type", [
   "tip",
   "warning",
   "note",
+]);
+
+export const unitTypeEnum = pgEnum("unit_type", [
+  "ml",
+  "l",
+  "tsp",
+  "tbps",
+  "cup",
+  "mg",
+  "g",
+  "kg",
+  "unit",
+  "clove",
+  "slice",
+  "can",
+  "bunch",
+  "pinch",
+  "dash",
 ]);
 
 export const recipes = createTable(
@@ -27,8 +45,8 @@ export const recipes = createTable(
     imageUrl: d.varchar({ length: 256 }).notNull(),
     color: d.varchar({ length: 30 }).default("E5E5E5").notNull(),
     favourited: d.boolean().default(false).notNull(),
-    prepTime: d.integer().notNull(), // in minutes
-    cookTime: d.integer().notNull(), // in minutes
+    prepTimeMinutes: d.integer().notNull(), // in minutes
+    cookTimeMinutes: d.integer().notNull(), // in minutes
     servings: d.integer().notNull(),
     calories: d.integer().notNull(),
     mealTypes: mealTypeEnum("meal_types").array().notNull().default([]),
@@ -50,8 +68,8 @@ export const ingredients = createTable(
     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
     groupId: d.integer().notNull(),
     name: d.varchar({ length: 256 }).notNull(),
-    measurement: d.varchar({ length: 50 }).notNull(),
-    value: d.real().notNull(),
+    unitType: unitTypeEnum("unit_type").notNull(),
+    amount: d.real().notNull(),
     note: d.varchar({ length: 256 }),
     createdAt: d
       .timestamp({ withTimezone: true })
@@ -90,36 +108,39 @@ export const procedureGroups = createTable("procedureGroups", (d) => ({
     .notNull(),
 }));
 
-export const procedureSteps = createTable(
-  "procedure_step",
+export const procedures = createTable(
+  "procedure",
   (d) => ({
     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-    procedureId: d.integer().notNull(), // FK to procedure
-    stepNumber: d.integer().notNull(),
-    content: d.varchar({ length: 1024 }).notNull(),
+    groupId: d.integer().notNull(), // FK to procedure
+    instructionNumber: d.integer().notNull(),
+    instruction: d.varchar({ length: 1024 }).notNull(),
   }),
   (t) => [
-    index("procedure_step_procid_step_idx").on(t.procedureId, t.stepNumber),
+    index("procedure_step_procid_step_idx").on(t.groupId, t.instructionNumber),
   ],
 );
 
-export const stepTimer = createTable("step_timer", (d) => ({
+export const instructionTimer = createTable("instruction_timer", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-  stepId: d.integer().notNull(), // FK to procedure_step
+  instructionId: d.integer().notNull(), // FK to procedure_step
   timeSeconds: d.integer().notNull(),
   title: d.varchar({ length: 256 }),
 }));
 
-export const stepIngredients = createTable("step_ingredient", (d) => ({
-  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-  stepId: d.integer().notNull(), // FK to procedure_step
-  ingredientId: d.integer().notNull(), // FK to ingredient
-}));
+export const instructionIngredients = createTable(
+  "instruction_ingredient",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    instructionId: d.integer().notNull(), // FK to procedure_step
+    ingredient: d.varchar({ length: 64 }).notNull(),
+  }),
+);
 
-export const stepNotes = createTable("step_note", (d) => ({
+export const instructionNotes = createTable("instruction_note", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-  stepId: d.integer().notNull(), // FK to procedure_step
-  type: stepNoteTypeEnum("step_note_type").notNull(), // tip, warning, note, etc.
+  instructionId: d.integer().notNull(), // FK to procedure_step
+  type: instructionNoteTypeEnum("instruction_note_type").notNull(), // tip, warning, note, etc.
   content: d.varchar({ length: 1024 }).notNull(),
 }));
 
@@ -178,44 +199,46 @@ export const procedureGroupRelations = relations(
       fields: [procedureGroups.recipeId],
       references: [recipes.id],
     }),
-    steps: many(procedureSteps),
+    instructions: many(procedures),
   }),
 );
 
-export const stepRelations = relations(procedureSteps, ({ many, one }) => ({
+export const instructionRelations = relations(procedures, ({ many, one }) => ({
   procedureGroups: one(procedureGroups, {
-    fields: [procedureSteps.procedureId],
+    fields: [procedures.groupId],
     references: [procedureGroups.id],
   }),
-  timer: one(stepTimer),
-  ingredients: many(stepIngredients),
-  notes: many(stepNotes),
+  timer: one(instructionTimer),
+  ingredients: many(instructionIngredients),
+  notes: many(instructionNotes),
 }));
 
-export const stepTimerRelations = relations(stepTimer, ({ one }) => ({
-  step: one(procedureSteps, {
-    fields: [stepTimer.stepId],
-    references: [procedureSteps.id],
-  }),
-}));
-
-export const stepIngredientRelations = relations(
-  stepIngredients,
+export const instructionTimerRelations = relations(
+  instructionTimer,
   ({ one }) => ({
-    step: one(procedureSteps, {
-      fields: [stepIngredients.stepId],
-      references: [procedureSteps.id],
-    }),
-    ingredient: one(ingredients, {
-      fields: [stepIngredients.ingredientId],
-      references: [ingredients.id],
+    instruction: one(procedures, {
+      fields: [instructionTimer.instructionId],
+      references: [procedures.id],
     }),
   }),
 );
 
-export const stepNoteRelations = relations(stepNotes, ({ one }) => ({
-  step: one(procedureSteps, {
-    fields: [stepNotes.stepId],
-    references: [procedureSteps.id],
+export const instructionIngredientRelations = relations(
+  instructionIngredients,
+  ({ one }) => ({
+    instruction: one(procedures, {
+      fields: [instructionIngredients.instructionId],
+      references: [procedures.id],
+    }),
   }),
-}));
+);
+
+export const instructionNoteRelations = relations(
+  instructionNotes,
+  ({ one }) => ({
+    instruction: one(procedures, {
+      fields: [instructionNotes.instructionId],
+      references: [procedures.id],
+    }),
+  }),
+);

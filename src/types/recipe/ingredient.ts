@@ -1,6 +1,5 @@
-import type { ingredients } from "~/server/db/schema";
+import { unitTypeEnum, type ingredients } from "~/server/db/schema";
 import z from "zod";
-import { MEASUREMENT_UNIT } from "~/types/recipe/units";
 
 export type Ingredient = typeof ingredients.$inferSelect;
 
@@ -10,8 +9,8 @@ export const ingredientSchema = z.object({
     .string()
     .min(1, "Ingredient cannot be empty.")
     .max(50, "No ingredient can be that long."),
-  value: z.coerce.number(),
-  unit: z.nativeEnum(MEASUREMENT_UNIT),
+  amount: z.coerce.number(),
+  unitType: z.enum(unitTypeEnum.enumValues),
   note: z.string().max(255, "Note is too long.").optional(),
   hasNote: z.boolean(),
 });
@@ -20,7 +19,7 @@ export const createDefaultIngredient = () => ({
   id: crypto.randomUUID(),
   name: "",
   note: "",
-  value: 0,
-  unit: MEASUREMENT_UNIT.G,
+  amount: 0,
+  unitType: unitTypeEnum.enumValues[0],
   hasNote: false,
 });

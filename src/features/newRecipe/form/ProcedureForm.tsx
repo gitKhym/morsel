@@ -3,27 +3,30 @@ import {
   useFieldArray,
   useWatch,
   type ControllerRenderProps,
+  type UseFieldArrayRemove,
   type UseFormReturn,
 } from "react-hook-form";
 import type z from "zod";
+import z from "zod";
 import { Button } from "~/components/ui/button";
-import { Card } from "~/components/ui/card";
 import {
   Combobox,
   ComboboxChip,
   ComboboxChips,
   ComboboxChipsInput,
+  ComboboxCollection,
   ComboboxContent,
   ComboboxEmpty,
+  ComboboxGroup,
   ComboboxItem,
+  ComboboxLabel,
   ComboboxList,
+  ComboboxSeparator,
   ComboboxValue,
   useComboboxAnchor,
 } from "~/components/ui/combobox";
 import {
-  Field,
   FieldGroup,
-  FieldLabel,
   FieldLegend,
   FieldSeparator,
   FieldSet,
@@ -34,31 +37,34 @@ import {
   FormSelect,
   FormTextarea,
 } from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
 import { SelectItem } from "~/components/ui/select";
 import { Separator } from "~/components/ui/separator";
 import TimeInput from "~/components/ui/time-input";
 import FormCard from "~/features/newRecipe/form/FormCard";
-import type { ingredientSchema } from "~/types/recipe/ingredient";
 import {
   defaultNote,
-  defaultProcedure,
-  type RecipeForm,
+  type FIngredientGroup,
+  type FProcedureGroup,
+  type FRecipe,
 } from "~/types/recipe/recipe";
 import { NoteType } from "~/types/recipe/step_modules/noteTypeEnum";
 
 interface ProcedureItemProps {
-  form: UseFormReturn<RecipeForm>;
+  form: UseFormReturn<FRecipe>;
   index: number;
-  removeProcedure: (index: number) => void;
-  ingredients: z.infer<typeof ingredientSchema>[];
+  removeProcedure: UseFieldArrayRemove;
+  ingredientGroups: FIngredientGroup[];
+  currGroup: FProcedureGroup & {
+    index: number;
+  };
 }
 
 function ProcedureItem({
   form,
   index,
   removeProcedure,
-  ingredients,
+  ingredientGroups,
+  currGroup,
 }: ProcedureItemProps) {
   const {
     fields: noteFields,
@@ -66,18 +72,24 @@ function ProcedureItem({
     remove: removeNote,
   } = useFieldArray({
     control: form.control,
-    name: `procedures.${index}.notes`,
+    name: `procedureGroups.${currGroup.index}.procedures.${index}.notes`,
   });
 
-  const hasIngredients = form.watch(`procedures.${index}.hasIngredients`);
-  const hasTimer = form.watch(`procedures.${index}.hasTimer`);
-  const hasNotes = form.watch(`procedures.${index}.hasNotes`);
+  const hasIngredients = form.watch(
+    `procedureGroups.${currGroup.index}.procedures.${index}.hasIngredients`,
+  );
+  const hasTimer = form.watch(
+    `procedureGroups.${currGroup.index}.procedures.${index}.hasTimer`,
+  );
+  const hasNotes = form.watch(
+    `procedureGroups.${currGroup.index}.procedures.${index}.hasNotes`,
+  );
 
   return (
     <div className="flex flex-col gap-2">
       <FormTextarea
         control={form.control}
-        name={`procedures.${index}.content`}
+        name={`procedureGroups.${currGroup.index}.procedures.${index}.instruction`}
         label={`Step ${index + 1}`}
       />
 
@@ -85,12 +97,15 @@ function ProcedureItem({
         <FormCard>
           <FieldSet>
             <FieldLegend>Ingredient List</FieldLegend>
-            <FieldGroup className="bg-accent/20 grid grid-cols-[1fr_auto_auto] gap-2 rounded-sm p-2">
+            <FieldGroup className="bg-card grid grid-cols-[1fr_auto_auto] gap-2 rounded-sm p-2">
               <Controller
                 control={form.control}
-                name={`procedures.${index}.ingredients`}
+                name={`procedureGroups.${currGroup.index}.procedures.${index}.ingredients`}
                 render={({ field }) => (
-                  <ProcedureCombobox field={field} ingredients={ingredients} />
+                  <ProcedureCombobox
+                    field={field}
+                    ingredientGroups={ingredientGroups}
+                  />
                 )}
               />
             </FieldGroup>
@@ -106,7 +121,7 @@ function ProcedureItem({
               <div>
                 <FormInput
                   control={form.control}
-                  name={`procedures.${index}.timer.title`}
+                  name={`procedureGroups.${currGroup.index}.procedures.${index}.timer.title`}
                   label="Timer title"
                   input={{ placeholder: "eg. Oven timer" }}
                 />
@@ -115,7 +130,7 @@ function ProcedureItem({
               <div>
                 <Controller
                   control={form.control}
-                  name={`procedures.${index}.timer.timeSeconds`}
+                  name={`procedureGroups.${currGroup.index}.procedures.${index}.timer.timeSeconds`}
                   render={({ field }) => (
                     <TimeInput
                       value={field.value}
@@ -139,7 +154,7 @@ function ProcedureItem({
                 <div key={note.id} className="flex flex-col gap-2">
                   <FormSelect
                     control={form.control}
-                    name={`procedures.${index}.notes.${noteIndex}.type`}
+                    name={`procedureGroups.${currGroup.index}.procedures.${index}.notes.${noteIndex}.type`}
                     label="Note type"
                   >
                     {NoteType.options.map((type) => (
@@ -150,7 +165,7 @@ function ProcedureItem({
                   </FormSelect>
                   <FormTextarea
                     control={form.control}
-                    name={`procedures.${index}.notes.${noteIndex}.content`}
+                    name={`procedureGroups.${currGroup.index}.procedures.${index}.notes.${noteIndex}.content`}
                     label={`Note ${noteIndex + 1}`}
                   />
                   <Button
@@ -179,17 +194,17 @@ function ProcedureItem({
 
       <FormCheckbox
         control={form.control}
-        name={`procedures.${index}.hasIngredients`}
+        name={`procedureGroups.${currGroup.index}.procedures.${index}.hasIngredients`}
         label="Include ingredients"
       />
       <FormCheckbox
         control={form.control}
-        name={`procedures.${index}.hasTimer`}
+        name={`procedureGroups.${currGroup.index}.procedures.${index}.hasTimer`}
         label="Include a timer"
       />
       <FormCheckbox
         control={form.control}
-        name={`procedures.${index}.hasNotes`}
+        name={`procedureGroups.${currGroup.index}.procedures.${index}.hasNotes`}
         label="Include notes"
       />
 
@@ -207,43 +222,48 @@ function ProcedureItem({
 }
 
 interface ProcedureComboboxProps {
-  field: ControllerRenderProps<RecipeForm, `procedures.${number}.ingredients`>;
-  ingredients: z.infer<typeof ingredientSchema>[];
+  field: ControllerRenderProps<
+    FRecipe,
+    `procedureGroups.${number}.procedures.${number}.ingredients`
+  >;
+  ingredientGroups: FIngredientGroup[];
 }
 
-function ProcedureCombobox({ field, ingredients }: ProcedureComboboxProps) {
+function ProcedureCombobox({
+  field,
+  ingredientGroups,
+}: ProcedureComboboxProps) {
   const anchor = useComboboxAnchor();
+
+  const ingredients = ingredientGroups.flatMap((group) => group.ingredients);
 
   return (
     <Combobox
       multiple
-      autoHighlight
-      items={ingredients.map((i) => i.id)}
+      items={ingredients}
       value={field.value.map((i) => i.id)}
-      onValueChange={(ids) =>
-        field.onChange(ingredients.filter((i) => ids.includes(i.id)))
-      }
+      onValueChange={(ids) => {
+        const selected = ingredients.filter((ing) => ids.includes(ing.id));
+        field.onChange(selected);
+      }}
     >
       <ComboboxChips ref={anchor}>
         <ComboboxValue>
-          {() =>
-            field.value.map((ingredient) => (
-              <ComboboxChip key={ingredient.id}>{ingredient.name}</ComboboxChip>
-            ))
-          }
+          {field.value.map((ingredient) => (
+            <ComboboxChip key={ingredient.id}>{ingredient.name}</ComboboxChip>
+          ))}
         </ComboboxValue>
         <ComboboxChipsInput />
       </ComboboxChips>
+
       <ComboboxContent anchor={anchor}>
         <ComboboxEmpty>No ingredients found.</ComboboxEmpty>
         <ComboboxList>
-          {ingredients
-            .filter((ingredient) => !!ingredient.name)
-            .map((ingredient) => (
-              <ComboboxItem key={ingredient.id} value={ingredient.id}>
-                {ingredient.name}
-              </ComboboxItem>
-            ))}
+          {ingredients.map((ingredient) => (
+            <ComboboxItem key={ingredient.id} value={ingredient.id}>
+              {ingredient.name}
+            </ComboboxItem>
+          ))}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
@@ -251,43 +271,67 @@ function ProcedureCombobox({ field, ingredients }: ProcedureComboboxProps) {
 }
 
 type ProcedureFormProps = {
-  form: UseFormReturn<RecipeForm>;
+  procedureGroup: FProcedureGroup & { index: number };
+  form: UseFormReturn<FRecipe>;
 };
-export default function ProcedureForm({ form }: ProcedureFormProps) {
+
+export default function ProcedureForm({
+  procedureGroup: group,
+  form,
+}: ProcedureFormProps) {
   const {
     fields: procedures,
     append: addProcedure,
     remove: removeProcedure,
-  } = useFieldArray({ control: form.control, name: "procedures" });
-
-  const ingredients = useWatch({
+  } = useFieldArray({
     control: form.control,
-    name: "ingredients",
+    name: `procedureGroups.${group.index}.procedures`,
+  });
+
+  const ingredientGroups = useWatch({
+    control: form.control,
+    name: "ingredientGroups",
   });
 
   return (
-    <FormCard>
-      <FieldSet>
-        <FieldGroup>
-          {procedures.map((procedure, index) => (
-            <ProcedureItem
-              key={index}
-              index={index}
-              form={form}
-              ingredients={ingredients}
-              removeProcedure={removeProcedure}
-            />
-          ))}
-        </FieldGroup>
-
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => addProcedure(defaultProcedure)}
-        >
-          Add Step
-        </Button>
-      </FieldSet>
+    <FormCard className="bg-card flex flex-col gap-2">
+      <FormInput
+        control={form.control}
+        name={`procedureGroups.${group.index}.name`}
+        label="Group Name"
+      />
+      {procedures.length > 0 && (
+        <FieldSet>
+          <FieldGroup>
+            {procedures.map((procedure, index) => (
+              <ProcedureItem
+                key={procedure.id}
+                index={index}
+                form={form}
+                removeProcedure={removeProcedure}
+                currGroup={group}
+                ingredientGroups={ingredientGroups}
+              />
+            ))}
+          </FieldGroup>
+        </FieldSet>
+      )}
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() =>
+          addProcedure({
+            instruction: "",
+            hasTimer: false,
+            hasNotes: false,
+            hasIngredients: false,
+            ingredients: [],
+            notes: [],
+          })
+        }
+      >
+        Add Step
+      </Button>
     </FormCard>
   );
 }

@@ -1,16 +1,72 @@
-import type { recipes } from "~/server/db/schema";
+import {
+  ingredientGroups,
+  ingredients,
+  instructionIngredients,
+  instructionNotes,
+  instructionTimer,
+  procedureGroups,
+  procedures,
+  unitTypeEnum,
+  type recipes,
+} from "~/server/db/schema";
 import z from "zod";
 import { MEAL_DIFFICULTY } from "~/types/recipe/mealDifficultyEnum";
 import { MEAL_TYPES } from "~/types/recipe/mealTypeEnum";
 import { ingredientSchema } from "~/types/recipe/ingredient";
-import { MEASUREMENT_UNIT } from "~/types/recipe/units";
+import { noteTypeEnum } from "~/types/recipe/step_modules/noteTypeEnum";
 import { procedureSchema } from "~/types/recipe/step";
-import {
-  NoteType,
-  STEP_NOTE_TYPE,
-} from "~/types/recipe/step_modules/noteTypeEnum";
 
-export type Recipe = typeof recipes.$inferSelect;
+export const NoteType = z.enum(noteTypeEnum.enumValues);
+export const UnitType = z.enum(unitTypeEnum.enumValues);
+
+export type FRecipe = z.infer<typeof recipeFormSchema>;
+export type FIngredientGroup = z.infer<typeof ingredientGroupSchema>;
+export type FProcedureGroup = z.infer<typeof procedureGroupSchema>;
+export type FProcedure = z.infer<typeof procedureSchema>;
+export type FIngredient = z.infer<typeof ingredientSchema>;
+
+export type PGRecipe = typeof recipes.$inferSelect;
+export type PGIngredientGroup = typeof ingredientGroups.$inferSelect;
+export type PGProcedureGroup = typeof procedureGroups.$inferSelect;
+export type PGProcedure = typeof procedures.$inferSelect;
+export type PGIngredient = typeof ingredients.$inferSelect;
+export type PGNote = typeof instructionNotes.$inferSelect;
+export type PGTimer = typeof instructionTimer.$inferSelect;
+export type PGInstructionIngredient =
+  typeof instructionIngredients.$inferSelect;
+
+export type Recipe = PGRecipe & {
+  ingredientGroups: (PGIngredientGroup & {
+    ingredients: PGIngredient[];
+  })[];
+
+  procedureGroups: (PGProcedureGroup & {
+    instructions: (PGProcedure & {
+      ingredients: PGIngredient[];
+      notes: PGNote[];
+      timer: PGTimer;
+    })[];
+  })[];
+};
+export const ingredientGroupSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Name cannot be empty.")
+    .max(255, "Name is too long."),
+  ingredients: z
+    .array(ingredientSchema)
+    .nonempty("At least one ingredient is required."),
+});
+
+export const procedureGroupSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Name cannot be empty.")
+    .max(255, "Name is too long."),
+  procedures: z
+    .array(procedureSchema)
+    .nonempty("At least one instruction is required."),
+});
 
 export const recipeFormSchema = z.object({
   name: z
@@ -53,22 +109,20 @@ export const recipeFormSchema = z.object({
   // ),
   difficulty: z.enum(MEAL_DIFFICULTY),
 
-  ingredients: z.array(ingredientSchema),
-  procedures: z.array(procedureSchema),
+  ingredientGroups: z.array(ingredientGroupSchema).nonempty(),
+  procedureGroups: z.array(procedureGroupSchema).nonempty(),
 });
 
-export type RecipeForm = z.output<typeof recipeFormSchema>;
-
-export const defaultIngredient = {
+export const defaultIngredient: FIngredient = {
   id: crypto.randomUUID(),
   name: "",
-  value: 0,
-  unit: NoteType, // TODO: Turn to zod enum
+  amount: 0,
+  unitType: UnitType.enum.g,
   hasNote: false,
 };
 
-export const defaultProcedure = {
-  content: "",
+export const defaultProcedure: FProcedure = {
+  instruction: "",
   hasTimer: false,
   hasNotes: false,
   hasIngredients: false,
@@ -81,11 +135,11 @@ export const defaultNote = {
   content: "",
 };
 
-export const defaultRecipe: RecipeForm = {
+export const defaultRecipe: FRecipe = {
   name: "",
   description: "",
   // imageUrl: "",
-  difficulty: "easy",
+  difficulty: "Easy",
   cookTimeMinutes: 0,
   prepTimeMinutes: 0,
   calories: 0,
@@ -93,6 +147,6 @@ export const defaultRecipe: RecipeForm = {
   mealTypes: [],
   // tags: [],
 
-  ingredients: [],
-  procedures: [],
+  ingredientGroups: [{ name: "", ingredients: [defaultIngredient] }],
+  procedureGroups: [{ name: "", procedures: [defaultProcedure] }],
 };

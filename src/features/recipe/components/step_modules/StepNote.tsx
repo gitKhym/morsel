@@ -1,4 +1,4 @@
-import { Pencil, Lightbulb, AlertTriangle } from "lucide-react";
+import { Pencil, Lightbulb, AlertTriangle, CircleAlert } from "lucide-react";
 
 type StepNoteVariant = "note" | "tip" | "warning";
 
@@ -15,7 +15,7 @@ const variantConfig: Record<
     icon: Lightbulb,
   },
   warning: {
-    icon: AlertTriangle,
+    icon: CircleAlert,
   },
 };
 
@@ -30,7 +30,7 @@ export default function StepNote({
 
   return (
     <div className="bg-accent grid grid-cols-[auto_1fr] gap-2 rounded-sm p-2 text-xs">
-      <Icon className="fill-accent-foreground h-3 w-3" />
+      <Icon className="h-3 w-3" />
       <span>{note}</span>
     </div>
   );

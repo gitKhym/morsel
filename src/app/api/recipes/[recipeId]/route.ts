@@ -21,15 +21,11 @@ export async function GET(
         },
         procedureGroups: {
           with: {
-            steps: {
+            instructions: {
               with: {
                 notes: true,
                 timer: true,
-                ingredients: {
-                  with: {
-                    ingredient: true,
-                  },
-                },
+                ingredients: true,
               },
             },
           },
@@ -45,13 +41,14 @@ export async function GET(
       ...rawRecipe,
       procedureGroups: rawRecipe.procedureGroups.map((pg) => ({
         ...pg,
-        steps: pg.steps.map((step) => ({
-          ...step,
-          ingredients: step.ingredients.map((i) => i.ingredient),
+        instructions: pg.instructions.map((instruction) => ({
+          ...instruction,
+          ingredients: instruction.ingredients
+            ? instruction.ingredients.map((i) => i.ingredient)
+            : [],
         })),
       })),
     };
-
     return NextResponse.json({ recipe });
   } catch (err) {
     return NextResponse.json({ error: err }, { status: 500 });

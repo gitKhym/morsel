@@ -1,23 +1,39 @@
-import type { UseFormReturn } from "react-hook-form";
-import { Button } from "~/components/ui/button";
-import { FieldGroup } from "~/components/ui/field";
+import { useState } from "react";
+import { Controller, type UseFormReturn } from "react-hook-form";
+import {
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxContent,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxValue,
+  useComboboxAnchor,
+} from "~/components/ui/combobox";
+import { Field, FieldGroup } from "~/components/ui/field";
 import {
   FormInput,
   FormMultiSelect,
   FormSelect,
   FormTextarea,
+  FormTimeInput,
 } from "~/components/ui/form";
+import { InputGroup, InputGroupInput } from "~/components/ui/input-group";
 import { SelectItem } from "~/components/ui/select";
 import FormCard from "~/features/newRecipe/form/FormCard";
+import { mealTypeEnum } from "~/server/db/schema";
 import { MEAL_DIFFICULTY } from "~/types/recipe/mealDifficultyEnum";
 import { MEAL_TYPES } from "~/types/recipe/mealTypeEnum";
-import type { RecipeForm } from "~/types/recipe/recipe";
+import type { FRecipe } from "~/types/recipe/recipe";
 
 type RecipeMetaFormProps = {
-  form: UseFormReturn<RecipeForm>;
+  form: UseFormReturn<FRecipe>;
 };
 
 export default function RecipeMetaForm({ form }: RecipeMetaFormProps) {
+  const anchor = useComboboxAnchor();
+
   return (
     <FormCard>
       <FieldGroup>
@@ -27,6 +43,37 @@ export default function RecipeMetaForm({ form }: RecipeMetaFormProps) {
           name="description"
           label="Description"
         />
+        <Controller
+          control={form.control}
+          name="mealTypes"
+          render={({ field }) => (
+            <Combobox
+              multiple
+              items={mealTypeEnum.enumValues}
+              value={field.value}
+              onValueChange={field.onChange}
+            >
+              <ComboboxChips ref={anchor}>
+                <ComboboxValue>
+                  {field.value.map((type) => (
+                    <ComboboxChip key={type}>{type}</ComboboxChip>
+                  ))}
+                </ComboboxValue>
+                <ComboboxChipsInput placeholder="Choose meal types." />
+              </ComboboxChips>
+              <ComboboxContent anchor={anchor}>
+                <ComboboxList>
+                  {(item: (typeof field.value)[number]) => (
+                    <ComboboxItem key={item} value={item}>
+                      {item}
+                    </ComboboxItem>
+                  )}
+                </ComboboxList>
+              </ComboboxContent>
+            </Combobox>
+          )}
+        />
+
         <FormMultiSelect
           control={form.control}
           name="mealTypes"
@@ -36,23 +83,19 @@ export default function RecipeMetaForm({ form }: RecipeMetaFormProps) {
             value: type,
           }))}
         />
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <FormInput
-              control={form.control}
-              name="prepTimeMinutes"
-              label="Prep Time (minutes)"
-              input={{ onFocus: (e) => e.target.select() }}
-            />
-          </div>
-          <div>
-            <FormInput
-              control={form.control}
-              name="cookTimeMinutes"
-              label="Cook Time (minutes)"
-              input={{ onFocus: (e) => e.target.select() }}
-            />
-          </div>
+        <div>
+          <FormTimeInput
+            label="Prep Time"
+            control={form.control}
+            name="prepTimeMinutes"
+          />
+        </div>
+        <div>
+          <FormTimeInput
+            label="Cooking Time"
+            control={form.control}
+            name="cookTimeMinutes"
+          />
         </div>
         <FormInput
           control={form.control}

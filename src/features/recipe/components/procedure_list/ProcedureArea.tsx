@@ -2,12 +2,12 @@ import { Ellipsis, Play } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import ProcedureGroup from "~/features/recipe/components/procedure_list/ProcedureGroup";
-import type { ProcedureGroup as ProcedureGroupType } from "~/types/recipe";
+import type { Recipe } from "~/types/recipe/recipe";
 
 export default function ProcedureArea({
   procedureGroups,
 }: {
-  procedureGroups: ProcedureGroupType[];
+  procedureGroups: Recipe["procedureGroups"];
 }) {
   return (
     <div className="bg-accent/50 mt-4 flex flex-col gap-2 overflow-hidden rounded-sm p-4">

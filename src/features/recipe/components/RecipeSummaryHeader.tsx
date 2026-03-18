@@ -2,16 +2,17 @@ import { Clock, Ellipsis, Flame, UsersRound } from "lucide-react";
 import Image from "next/image";
 import { Button } from "~/components/ui/button";
 import FavouriteRecipeButton from "~/features/recipe/components/FavouriteRecipeButton";
+import RecipeActionDropdown from "~/features/recipe/components/RecipeActionDropdown";
 import AddRecipeToCollectionButton from "~/features/recipes/components/recipe_card/AddRecipeToCollectionButton";
 import { minutesToDuration } from "~/lib/utils";
 import type { Collection } from "~/types/recipe/collection";
-import type { Recipe } from "~/types/recipe/recipe";
+import type { PGRecipe } from "~/types/recipe/recipe";
 
 export default function RecipeSummaryHeader({
   recipe,
   collections,
 }: {
-  recipe: Recipe;
+  recipe: PGRecipe;
   collections: Collection[];
 }) {
   return (
@@ -44,7 +45,7 @@ export default function RecipeSummaryHeader({
             <span className="text-xs tracking-wide">Cook Time</span>
             <div className="flex items-center gap-1">
               <Clock className="h-4 w-4" />
-              {minutesToDuration(recipe.cookTime)}
+              {minutesToDuration(recipe.cookTimeMinutes)}
             </div>
           </div>
 
@@ -52,7 +53,7 @@ export default function RecipeSummaryHeader({
             <span className="text-xs tracking-wide">Prep Time</span>
             <div className="flex items-center gap-1">
               <Clock className="h-4 w-4" />
-              {minutesToDuration(recipe.prepTime)}
+              {minutesToDuration(recipe.prepTimeMinutes)}
             </div>
           </div>
 
@@ -81,9 +82,7 @@ export default function RecipeSummaryHeader({
             recipe={recipe}
             collections={collections}
           />
-          <Button size="icon">
-            <Ellipsis />
-          </Button>
+          <RecipeActionDropdown />
         </div>
       </div>
     </div>

@@ -7,14 +7,15 @@ import FavouriteRecipeButton from "~/features/recipe/components/FavouriteRecipeB
 import AddRecipeToCollectionButton from "~/features/recipes/components/recipe_card/AddRecipeToCollectionButton";
 import MealTypeBadgeList from "~/features/recipes/components/recipe_card/MealTypeBadgeList";
 import TagsBadgeList from "~/features/recipes/components/recipe_card/TagsBadgeList";
-import { cn, minutesToDuration } from "~/lib/utils";
-import type { Collection, Recipe } from "~/types/recipe";
+import { minutesToDuration } from "~/lib/utils";
+import type { Collection } from "~/types/recipe/collection";
+import type { PGRecipe } from "~/types/recipe/recipe";
 
 export default function RecipeCard({
   recipe,
   collections,
 }: {
-  recipe: Recipe;
+  recipe: PGRecipe;
   collections: Collection[];
 }) {
   return (
@@ -72,7 +73,7 @@ export default function RecipeCard({
             <span className="text-xs tracking-wide">Cook Time</span>
             <div className="flex items-center gap-1">
               <Clock className="h-4 w-4" />
-              {minutesToDuration(recipe.cookTime)}
+              {minutesToDuration(recipe.cookTimeMinutes)}
             </div>
           </div>
         </div>
