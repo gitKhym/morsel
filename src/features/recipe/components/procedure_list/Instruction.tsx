@@ -7,12 +7,14 @@ import type { PGNote, PGProcedure, PGTimer } from "~/types/recipe/recipe";
 
 export default function Instruction({
   instruction,
+  number,
 }: {
   instruction: PGProcedure & {
     ingredients: string[];
     notes: PGNote[];
     timer: PGTimer;
   };
+  number: number;
 }) {
   return (
     <div
@@ -22,8 +24,8 @@ export default function Instruction({
       )}
     >
       <div className="bg-accent-secondary grid grid-cols-[auto_1fr] gap-4 rounded-sm p-4">
-        <div className="text-primary-foreground flex h-6 w-6 items-center justify-center rounded-full bg-white p-2">
-          {instruction.instructionNumber + 1}
+        <div className="text-primary-foreground flex h-6 w-6 items-center justify-center rounded-full bg-white p-2 text-xs font-bold">
+          {number}
         </div>
         <div className="flex flex-col gap-2">
           <span>{instruction.instruction}</span>

@@ -8,8 +8,12 @@ export default function InstructionList({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      {instructions.map((instruction) => (
-        <Instruction key={instruction.id} instruction={instruction} />
+      {instructions.map((instruction, index) => (
+        <Instruction
+          key={instruction.id}
+          instruction={instruction}
+          number={index + 1}
+        />
       ))}
     </div>
   );

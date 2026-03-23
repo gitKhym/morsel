@@ -11,15 +11,22 @@ import {
   procedures,
   recipes,
 } from "~/server/db/schema";
+<<<<<<< HEAD
+=======
+import type { Ingredient } from "~/types/recipe/ingredient";
+>>>>>>> c161058857004b1ad16535c85f615c8eb595e879
 import { recipeFormSchema, type FRecipe } from "~/types/recipe/recipe";
 
 export async function POST(req: NextRequest) {
   try {
+<<<<<<< HEAD
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+=======
+>>>>>>> c161058857004b1ad16535c85f615c8eb595e879
     const unsafeData = (await req.json()) as FRecipe;
     console.log("Incoming body:", unsafeData);
 
@@ -49,7 +56,10 @@ export async function POST(req: NextRequest) {
           servings: incoming.servings,
           difficulty: incoming.difficulty,
           imageUrl: incoming.imageUrl,
+<<<<<<< HEAD
           userId: userId,
+=======
+>>>>>>> c161058857004b1ad16535c85f615c8eb595e879
         })
         .returning({ id: recipes.id });
 

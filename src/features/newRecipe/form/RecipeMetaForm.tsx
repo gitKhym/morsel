@@ -1,16 +1,5 @@
-import { useState } from "react";
-import { Controller, type UseFormReturn } from "react-hook-form";
-import {
-  Combobox,
-  ComboboxChip,
-  ComboboxChips,
-  ComboboxChipsInput,
-  ComboboxContent,
-  ComboboxItem,
-  ComboboxList,
-  ComboboxValue,
-  useComboboxAnchor,
-} from "~/components/ui/combobox";
+import { useState, useEffect } from "react";
+import { useWatch, type UseFormReturn } from "react-hook-form";
 import { Field, FieldGroup } from "~/components/ui/field";
 import {
   FormInput,
@@ -26,13 +15,30 @@ import { mealTypeEnum } from "~/server/db/schema";
 import { MEAL_DIFFICULTY } from "~/types/recipe/mealDifficultyEnum";
 import { MEAL_TYPES } from "~/types/recipe/mealTypeEnum";
 import type { FRecipe } from "~/types/recipe/recipe";
+import { Button } from "~/components/ui/button";
+import { Search } from "lucide-react";
 
 type RecipeMetaFormProps = {
   form: UseFormReturn<FRecipe>;
 };
 
 export default function RecipeMetaForm({ form }: RecipeMetaFormProps) {
-  const anchor = useComboboxAnchor();
+  const recipeName = useWatch({
+    control: form.control,
+    name: "name",
+  });
+  const imageUrl = useWatch({
+    control: form.control,
+    name: "imageUrl",
+  });
+
+  const searchOnUnsplash = () => {
+    const query = recipeName || "food";
+    window.open(
+      `https://unsplash.com/s/photos/${encodeURIComponent(query)}`,
+      "_blank",
+    );
+  };
 
   return (
     <FormCard>
@@ -43,36 +49,40 @@ export default function RecipeMetaForm({ form }: RecipeMetaFormProps) {
           name="description"
           label="Description"
         />
-        <Controller
-          control={form.control}
-          name="mealTypes"
-          render={({ field }) => (
-            <Combobox
-              multiple
-              items={mealTypeEnum.enumValues}
-              value={field.value}
-              onValueChange={field.onChange}
-            >
-              <ComboboxChips ref={anchor}>
-                <ComboboxValue>
-                  {field.value.map((type) => (
-                    <ComboboxChip key={type}>{type}</ComboboxChip>
-                  ))}
-                </ComboboxValue>
-                <ComboboxChipsInput placeholder="Choose meal types." />
-              </ComboboxChips>
-              <ComboboxContent anchor={anchor}>
-                <ComboboxList>
-                  {(item: (typeof field.value)[number]) => (
-                    <ComboboxItem key={item} value={item}>
-                      {item}
-                    </ComboboxItem>
-                  )}
-                </ComboboxList>
-              </ComboboxContent>
-            </Combobox>
+
+        <div className="flex flex-col gap-2">
+          <FormInput
+            control={form.control}
+            name="imageUrl"
+            label="Image URL"
+            input={{
+              placeholder: "Paste an Unsplash image URL here.",
+            }}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={searchOnUnsplash}
+          >
+            <Search className="mr-2 h-4 w-4" />
+            Search on Unsplash
+          </Button>
+          {imageUrl && (
+            <div className="relative mt-2 aspect-video w-full overflow-hidden rounded-md border">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageUrl}
+                alt="Recipe preview"
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src =
+                    "https://via.placeholder.com/400x225?text=Invalid+Image+URL";
+                }}
+              />
+            </div>
           )}
-        />
+        </div>
 
         <FormMultiSelect
           control={form.control}

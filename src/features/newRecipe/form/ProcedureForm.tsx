@@ -135,6 +135,8 @@ function ProcedureItem({
                       value={field.value}
                       onChange={field.onChange}
                       className="mt-1"
+                      largeLabel="m"
+                      smallLabel="s"
                     />
                   )}
                 />

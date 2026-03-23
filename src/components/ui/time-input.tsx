@@ -1,144 +1,92 @@
-import { ChevronDown, ChevronUp } from "lucide-react";
 import { useRef } from "react";
-import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 
 interface TimeInputProps {
   value?: number;
   onChange: (value: number) => void;
   className?: string;
+  largeLabel?: string;
+  smallLabel?: string;
 }
-function secondsToParts(total: number) {
-  const safe = Math.max(0, total ?? 0);
 
+function valueToParts(total: number) {
+  const safe = Math.max(0, total ?? 0);
   return {
-    minutes: Math.floor(safe / 60),
-    seconds: safe % 60,
+    large: Math.floor(safe / 60),
+    small: safe % 60,
   };
 }
 
-function partsToSeconds(minutes: number, seconds: number) {
-  const m = Math.max(0, minutes);
-  const s = Math.min(59, Math.max(0, seconds));
-  return m * 60 + s;
+function partsToValue(large: number, small: number) {
+  const l = Math.max(0, large);
+  const s = Math.min(59, Math.max(0, small));
+  return l * 60 + s;
 }
 
 export default function TimeInput({
   value = 0,
   onChange,
   className,
+  largeLabel = "h",
+  smallLabel = "m",
 }: TimeInputProps) {
-  const { minutes, seconds } = secondsToParts(value);
+  const { large, small } = valueToParts(value);
 
-  const minutesRef = useRef<HTMLInputElement | null>(null);
-  const secondsRef = useRef<HTMLInputElement | null>(null);
+  const largeRef = useRef<HTMLInputElement | null>(null);
+  const smallRef = useRef<HTMLInputElement | null>(null);
 
-  function updateMinutes(newMinutes: number) {
-    onChange(partsToSeconds(newMinutes, seconds));
+  function updateLarge(newLarge: number) {
+    onChange(partsToValue(newLarge, small));
   }
 
-  function updateSeconds(newSeconds: number) {
-    onChange(partsToSeconds(minutes, newSeconds));
-  }
-
-  function incrementMinutes() {
-    updateMinutes(minutes + 1);
-  }
-
-  function decrementMinutes() {
-    updateMinutes(Math.max(0, minutes - 1));
-  }
-
-  function incrementSeconds() {
-    if (seconds === 59) {
-      updateMinutes(minutes + 1);
-      updateSeconds(0);
-    } else {
-      updateSeconds(seconds + 1);
-    }
-  }
-
-  function decrementSeconds() {
-    if (seconds === 0 && minutes > 0) {
-      updateMinutes(minutes - 1);
-      updateSeconds(59);
-    } else {
-      updateSeconds(Math.max(0, seconds - 1));
-    }
+  function updateSmall(newSmall: number) {
+    onChange(partsToValue(large, newSmall));
   }
 
   return (
-    <div className={`flex items-center space-x-1 rounded-md ${className}`}>
-      {/* Minutes */}
-      <div className="flex flex-col items-center">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-5 w-5"
-          onClick={incrementMinutes}
-        >
-          <ChevronUp className="h-3 w-3" />
-        </Button>
-
+    <div className={`flex items-center gap-2 ${className}`}>
+      <div className="flex items-center gap-1">
         <Input
-          ref={minutesRef}
+          ref={largeRef}
           type="text"
           inputMode="numeric"
-          value={minutes}
-          onChange={(e) =>
-            updateMinutes(Number(e.target.value.replace(/\D/g, "")))
-          }
-          className="w-10 border-0 p-0 text-center focus:ring-0 focus:outline-none"
+          value={large}
+          onChange={(e) => {
+            const val = e.target.value.replace(/\D/g, "");
+            updateLarge(val === "" ? 0 : Number(val));
+          }}
+          className="h-8 w-12 border px-1 text-center font-medium tabular-nums shadow-none"
           onFocus={(e) => e.target.select()}
+          onBlur={(e) => {
+            if (e.target.value === "") updateLarge(0);
+          }}
         />
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-5 w-5"
-          onClick={decrementMinutes}
-        >
-          <ChevronDown className="h-3 w-3" />
-        </Button>
+        <span className="text-muted-foreground text-xs font-medium">{largeLabel}</span>
       </div>
 
-      <span className="text-sm font-medium">:</span>
-
-      {/* Seconds */}
-      <div className="flex flex-col items-center">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-5 w-5"
-          onClick={incrementSeconds}
-        >
-          <ChevronUp className="h-3 w-3" />
-        </Button>
-
+      <div className="flex items-center gap-1">
         <Input
-          ref={secondsRef}
+          ref={smallRef}
           type="text"
           inputMode="numeric"
-          value={seconds.toString().padStart(2, "0")}
-          onChange={(e) =>
-            updateSeconds(Number(e.target.value.replace(/\D/g, "").slice(0, 2)))
-          }
-          className="w-10 border-0 p-0 text-center focus:ring-0 focus:outline-none"
+          value={small.toString().padStart(2, "0")}
+          onChange={(e) => {
+            const val = e.target.value.replace(/\D/g, "");
+            const num = val === "" ? 0 : Number(val);
+            if (num <= 59) {
+              updateSmall(num);
+            } else {
+              // Capping or taking last two digits
+              updateSmall(Number(val.slice(-2)) % 60);
+            }
+          }}
+          className="h-8 w-12 border px-1 text-center font-medium tabular-nums shadow-none"
           onFocus={(e) => e.target.select()}
+          onBlur={(e) => {
+            if (e.target.value === "") updateSmall(0);
+          }}
         />
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-5 w-5"
-          onClick={decrementSeconds}
-        >
-          <ChevronDown className="h-3 w-3" />
-        </Button>
+        <span className="text-muted-foreground text-xs font-medium">{smallLabel}</span>
       </div>
     </div>
   );

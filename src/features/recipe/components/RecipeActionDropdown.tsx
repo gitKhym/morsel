@@ -2,6 +2,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 
@@ -11,10 +12,43 @@ import {
   Pencil,
   StickyNote,
   ShoppingCart,
+  Trash2,
 } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
-export default function RecipeActionDropdown() {
+import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import Link from "next/link";
+
+export default function RecipeActionDropdown({ recipeId }: { recipeId: number }) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const deleteRecipe = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/recipes/${recipeId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete recipe");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast.success("Recipe deleted successfully");
+      void queryClient.invalidateQueries({ queryKey: ["recipes"] });
+      router.push("/recipes");
+    },
+    onError: () => {
+      toast.error("Failed to delete recipe");
+    },
+  });
+
+  const handleDelete = () => {
+    if (confirm("Are you sure you want to delete this recipe?")) {
+      deleteRecipe.mutate();
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -40,9 +74,17 @@ export default function RecipeActionDropdown() {
           Toggle notes
         </DropdownMenuItem>
 
-        <DropdownMenuItem>
-          <Pencil className="h-4" />
-          Edit
+        <DropdownMenuItem asChild>
+          <Link href={`/recipes/${recipeId}/edit`}>
+            <Pencil className="h-4" />
+            Edit
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant="destructive" onClick={handleDelete}>
+          <Trash2 className="h-4" />
+          Delete Recipe
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -31,6 +31,8 @@ import {
 import { Textarea } from "~/components/ui/textarea";
 import TimeInput from "~/components/ui/time-input";
 
+type TimeInputProps = React.ComponentProps<typeof TimeInput>;
+
 type InputProps = React.ComponentProps<typeof Input>;
 
 type FormControlProps<
@@ -143,11 +145,23 @@ export const FormTextarea: FormControlFunc = (props) => {
   return <FormBase {...props}>{(field) => <Textarea {...field} />}</FormBase>;
 };
 
-export const FormTimeInput: FormControlFunc = (props) => {
+export const FormTimeInput: FormControlFunc<Partial<TimeInputProps>> = ({
+  largeLabel,
+  smallLabel,
+  className,
+  ...props
+}) => {
   return (
     <FormBase {...props}>
       {({ onChange, value, ...field }) => (
-        <TimeInput {...field} value={value} onChange={onChange} />
+        <TimeInput
+          {...field}
+          value={value}
+          onChange={onChange}
+          largeLabel={largeLabel}
+          smallLabel={smallLabel}
+          className={className}
+        />
       )}
     </FormBase>
   );
