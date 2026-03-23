@@ -3,18 +3,13 @@ import StepNote from "~/features/recipe/components/step_modules/StepNote";
 import Timer from "~/features/recipe/components/step_modules/Timer";
 import { cn } from "~/lib/utils";
 
-import type {
-  PGIngredient,
-  PGNote,
-  PGProcedure,
-  PGTimer,
-} from "~/types/recipe/recipe";
+import type { PGNote, PGProcedure, PGTimer } from "~/types/recipe/recipe";
 
 export default function Instruction({
   instruction,
 }: {
   instruction: PGProcedure & {
-    ingredients: PGIngredient[];
+    ingredients: string[];
     notes: PGNote[];
     timer: PGTimer;
   };
@@ -35,9 +30,9 @@ export default function Instruction({
           {instruction.ingredients.length > 0 && (
             <div className="text-muted-foreground flex flex-wrap gap-1 text-xs">
               Using:
-              {instruction.ingredients.map((ingredient) => (
-                <Badge key={ingredient.id} variant="secondary">
-                  {ingredient.name}
+              {instruction.ingredients.map((ingredient, i) => (
+                <Badge key={i} variant="secondary">
+                  {ingredient}
                 </Badge>
               ))}
             </div>

@@ -6,6 +6,7 @@ import FormCard from "~/features/newRecipe/form/FormCard";
 import { FormInput } from "~/components/ui/form";
 import type { FRecipe } from "~/types/recipe/recipe";
 import { X } from "lucide-react";
+import { createDefaultIngredient } from "~/types/recipe/ingredient";
 
 type IngredientGroupFormProps = {
   form: UseFormReturn<FRecipe>;
@@ -57,9 +58,7 @@ export default function IngredientGroupForm({
         onClick={() =>
           addGroup({
             name: "",
-            ingredients: [
-              { name: "", unitType: "l", amount: 0, hasNote: false, id: "" },
-            ],
+            ingredients: [createDefaultIngredient()],
           })
         }
       >

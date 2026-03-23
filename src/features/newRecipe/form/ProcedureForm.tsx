@@ -6,7 +6,6 @@ import {
   type UseFieldArrayRemove,
   type UseFormReturn,
 } from "react-hook-form";
-import type z from "zod";
 import z from "zod";
 import { Button } from "~/components/ui/button";
 import {
@@ -240,8 +239,8 @@ function ProcedureCombobox({
   return (
     <Combobox
       multiple
-      items={ingredients}
-      value={field.value.map((i) => i.id)}
+      items={ingredients.map((i) => i.id)}
+      value={(field.value ?? []).map((i) => i.id)}
       onValueChange={(ids) => {
         const selected = ingredients.filter((ing) => ids.includes(ing.id));
         field.onChange(selected);
@@ -249,7 +248,7 @@ function ProcedureCombobox({
     >
       <ComboboxChips ref={anchor}>
         <ComboboxValue>
-          {field.value.map((ingredient) => (
+          {(field.value ?? []).map((ingredient) => (
             <ComboboxChip key={ingredient.id}>{ingredient.name}</ComboboxChip>
           ))}
         </ComboboxValue>
