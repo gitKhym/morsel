@@ -43,6 +43,7 @@ export const recipes = createTable(
     name: d.varchar({ length: 256 }).notNull(),
     description: d.varchar({ length: 256 }),
     imageUrl: d.varchar({ length: 256 }).notNull(),
+    userId: d.varchar({ length: 256 }).notNull(),
     color: d.varchar({ length: 30 }).default("E5E5E5").notNull(),
     favourited: d.boolean().default(false).notNull(),
     prepTimeMinutes: d.integer().notNull(), // in minutes

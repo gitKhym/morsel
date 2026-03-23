@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { Lexend_Deca } from "next/font/google";
 import { cn } from "~/lib/utils";
 import { QueryProvider } from "~/components/QueryProvider";
+import { ClerkProvider } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
   title: "Morsel",
@@ -18,12 +19,16 @@ const font = Lexend_Deca({
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <QueryProvider>
-      <html lang="en" className={cn(font.variable)}>
-        <body className="dark">{children}</body>
-      </html>
-    </QueryProvider>
+    <html lang="en" className={cn(font.variable)}>
+      <body className="dark">
+        <ClerkProvider>
+          <QueryProvider>{children}</QueryProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

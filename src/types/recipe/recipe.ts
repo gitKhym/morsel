@@ -42,7 +42,7 @@ export type Recipe = PGRecipe & {
 
   procedureGroups: (PGProcedureGroup & {
     instructions: (PGProcedure & {
-      ingredients: PGIngredient[];
+      ingredients: string[];
       notes: PGNote[];
       timer: PGTimer;
     })[];
