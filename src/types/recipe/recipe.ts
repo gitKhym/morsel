@@ -78,7 +78,7 @@ export const recipeFormSchema = z.object({
     .max(255, "Description is too long.")
     .transform((v) => v || undefined)
     .optional(),
-  // imageUrl: z.string().url("Image is not a valid url."),
+  imageUrl: z.string().url("Image is not a valid url."),
   prepTimeMinutes: z.coerce
     .number({
       invalid_type_error: "Must be a valid number",
@@ -138,7 +138,7 @@ export const defaultNote = {
 export const defaultRecipe: FRecipe = {
   name: "",
   description: "",
-  // imageUrl: "",
+  imageUrl: "",
   difficulty: "Easy",
   cookTimeMinutes: 0,
   prepTimeMinutes: 0,

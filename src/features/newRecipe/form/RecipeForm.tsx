@@ -7,25 +7,65 @@ import {
   recipeFormSchema,
   type FRecipe,
 } from "~/types/recipe/recipe";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "~/components/ui/button";
 import RecipeMetaForm from "~/features/newRecipe/form/RecipeMetaForm";
 import IngredientGroupForm from "~/features/newRecipe/form/IngredientGroupForm";
 import ProcedureGroupForm from "~/features/newRecipe/form/ProcedureGroupForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-export default function RecipeForm() {
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+type RecipeFormProps = {
+  initialData?: FRecipe;
+  recipeId?: number;
+  submitLabel?: string;
+};
+
+export default function RecipeForm({
+  initialData,
+  recipeId,
+  submitLabel = "Create Recipe",
+}: RecipeFormProps) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const form = useForm<FRecipe>({
-    defaultValues: defaultRecipe,
+    defaultValues: initialData ?? defaultRecipe,
     resolver: zodResolver(recipeFormSchema),
   });
 
-  const createRecipe = useMutation({
+  const mutation = useMutation({
     mutationFn: async (recipe: FRecipe) => {
-      const res = await fetch("/api/recipes/new", {
-        method: "POST",
+      const url = recipeId ? `/api/recipes/${recipeId}` : "/api/recipes/new";
+      const method = recipeId ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(recipe),
       });
+
+      if (!res.ok) {
+        throw new Error(`Failed to ${recipeId ? "update" : "create"} recipe`);
+      }
+
+      return res.json() as Promise<{ recipeId?: number; success: boolean }>;
+    },
+    onSuccess: (data) => {
+      toast.success(`Recipe ${recipeId ? "updated" : "created"} successfully`);
+      const id = recipeId ?? data.recipeId;
+      if (recipeId) {
+        void queryClient.invalidateQueries({ queryKey: ["recipe", String(recipeId)] });
+      }
+      void queryClient.invalidateQueries({ queryKey: ["recipes"] });
+      if (id) {
+        router.push(`/recipes/${id}`);
+      } else {
+        router.push("/recipes");
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
@@ -34,11 +74,11 @@ export default function RecipeForm() {
       <form
         onSubmit={form.handleSubmit(
           (data) => {
-            console.log("submitted");
-            createRecipe.mutate(data);
+            mutation.mutate(data);
           },
           (errors) => {
             console.log("FORM ERRORS:", errors);
+            toast.error("Please check the form for errors");
           },
         )}
         className="flex flex-col gap-2"
@@ -55,7 +95,8 @@ export default function RecipeForm() {
                 !!form.formState.errors.prepTimeMinutes ||
                 !!form.formState.errors.calories ||
                 !!form.formState.errors.servings ||
-                !!form.formState.errors.difficulty
+                !!form.formState.errors.difficulty ||
+                !!form.formState.errors.imageUrl
               }
             >
               Details
@@ -72,7 +113,9 @@ export default function RecipeForm() {
             >
               Directions
             </TabsTrigger>
-            <Button>Create Recipe</Button>
+            <Button disabled={mutation.isPending}>
+              {mutation.isPending ? "Saving..." : submitLabel}
+            </Button>
           </TabsList>
           <TabsContent value="details">
             <RecipeMetaForm form={form} />

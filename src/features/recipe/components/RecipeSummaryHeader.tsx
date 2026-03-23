@@ -82,7 +82,7 @@ export default function RecipeSummaryHeader({
             recipe={recipe}
             collections={collections}
           />
-          <RecipeActionDropdown />
+          <RecipeActionDropdown recipeId={recipe.id} />
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { Button } from "~/components/ui/button";
 import ProcedureForm from "~/features/newRecipe/form/ProcedureForm";
 import { FormInput } from "~/components/ui/form";
 import FormCard from "~/features/newRecipe/form/FormCard";
-import type { FRecipe } from "~/types/recipe/recipe";
+import { defaultProcedure, type FRecipe } from "~/types/recipe/recipe";
 import { X } from "lucide-react";
 
 type ProcedureGroupFormProps = {
@@ -44,8 +44,8 @@ export default function ProcedureGroupForm({ form }: ProcedureGroupFormProps) {
         variant="outline"
         onClick={() =>
           addGroup({
-            name: "what",
-            procedures: [],
+            name: "",
+            procedures: [defaultProcedure],
           })
         }
       >
